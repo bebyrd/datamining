@@ -1,6 +1,27 @@
 import os, csv
+import sys
 import glob
 import math
+from subprocess import *
+
+
+#NOTE: Program must be run from directory containing drivers folder for csv to be correctly located!!!
+if len(sys.argv) < 1:
+    print('Usage: {0} driver file directory'.format(sys.argv[0]))
+    raise SystemExit
+
+# check os, will determine the folder format:
+is_win32 = (sys.platform == 'win32')
+if not is win32:
+    #unix/MacOSx
+    dir_path = sys.argv[1]+"/drivers/drivers/1/1.csv"
+else:
+    #windows folder
+    dir_path = sys.argv[1]+r"\drivers\drivers\1\1.csv"
+
+
+assert os.path.exists(dir_path),"directory path not found"
+
 
 def filereader(file):
     csvFile = csv.reader(file)
@@ -29,7 +50,7 @@ def totalDistance(listIn):
     return distance
 
 
-dir_path = r'C:/Users/Brandon/Downloads/drivers/drivers/1/1.csv'
+
 #file_dir_extension = os.path.join(dir_path, '*csv')
 fileIn = open(dir_path, 'r')
 #for file_name in glob.glob(file_dir_extension):
