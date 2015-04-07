@@ -103,6 +103,8 @@ def totalDistance(listIn):
     currentDistance = 0.0
     isStopped = False
     angleCount = 0
+    lastHeading = 1000
+    angleChange = 0
     for row in listIn:
         #first coordinate
         x1 = float(listIn[count][0])
@@ -119,8 +121,14 @@ def totalDistance(listIn):
         #calculate current heading
         if x1 != x2 and y1 != y2:
             heading = angularVelocity(x1,y1,x2,y2)
-            print 'x1:%d y1:%d x2:%d y2:%d heading: %d deg' % (x1,y1,x2,y2,heading)
+            if lastHeading == 1000:
+                lastHeading = heading
+            else:
+                angleChange = heading - lastHeading
+                print 'last heading: %d, new heading: %d, angleChg: %d' %(lastHeading,heading,angleChange)
+            print 'x1:%d y1:%d x2:%d y2:%d ' % (x1,y1,x2,y2)
             angleCount = angleCount+1
+            lastHeading = heading
 
         #compute the change in speed from one coordinate to the next
         changeSpeed = nextDistance - currentDistance
