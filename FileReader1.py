@@ -1,6 +1,7 @@
 import os, csv
 import glob
 import math
+import sys
 
 #process the csv file with x and y coordinates
 def filereader(file):
@@ -128,8 +129,8 @@ def totalDistance(listIn):
             else:
                 #print headings and change in headings
                 angleChange = heading - lastHeading
-                print 'last heading: %d, new heading: %d, angleChg: %d' %(lastHeading,heading,angleChange)
-            print 'x1:%d y1:%d x2:%d y2:%d ' % (x1,y1,x2,y2)
+                #print 'last heading: %d, new heading: %d, angleChg: %d' %(lastHeading,heading,angleChange)
+            #print 'x1:%d y1:%d x2:%d y2:%d ' % (x1,y1,x2,y2)
             if angleChange < 0:
                 negAngleCount = negAngleCount+1
                 avgNeg_angularVelocity = avgNeg_angularVelocity + angleChange
@@ -175,6 +176,8 @@ def totalDistance(listIn):
             break
     return distance
 
+
+
 #Brandon Working Directory
 dir_path = r'C:/Users/Brandon/Downloads/drivers/drivers/1/5.csv'
 #Ben Working Directory (comment out when not used!)
@@ -212,21 +215,21 @@ filePoints = filereader(fileIn)
 dist = totalDistance(filePoints)
 
 #print results
-print 'Total Stops = %d' % totalStops
-print 'Average Stop Deceleration = %f m/s2' % (totalStopDecelerations/totalStops)
-print 'Average Stop Acceleration = %f m/s2' % (totalStopAccelerations/totalStops)
-print 'Total Trip Distance = %.3f meters' % dist
-print 'Total Seconds = %d seconds' % len(filePoints)
-print 'Average Velocity = %f m/s' % (dist/len(filePoints))
-print 'Max Velocity = %f m/s' % max_velocity
-print 'Max Acceleration = %f m/s2' % max_acceleration
-print 'Max Deceleration = %f m/s2' % max_deceleration
-print 'Max Angular Velocity = %f deg/s' % max_angularVelocity
-print 'Min Angular Velocity = %f deg/s' % min_angularVelocity
-print 'Neg Avg Angular Velocity = %f deg/s' % (avgNeg_angularVelocity/negAngleCount)
-print 'Pos Avg Angular Velocity = %f deg/s' % (avgPos_angularVelocity/posAngleCount)
+#print 'Total Stops = %d' % totalStops
+#print 'Average Stop Deceleration = %f m/s2' % (totalStopDecelerations/totalStops)
+#print 'Average Stop Acceleration = %f m/s2' % (totalStopAccelerations/totalStops)
+#print 'Total Trip Distance = %.3f meters' % dist
+#print 'Total Seconds = %d seconds' % len(filePoints)
+#print 'Average Velocity = %f m/s' % (dist/len(filePoints))
+#print 'Max Velocity = %f m/s' % max_velocity
+#print 'Max Acceleration = %f m/s2' % max_acceleration
+#print 'Max Deceleration = %f m/s2' % max_deceleration
+#print 'Max Angular Velocity = %f deg/s' % max_angularVelocity
+#print 'Min Angular Velocity = %f deg/s' % min_angularVelocity
+#print 'Neg Avg Angular Velocity = %f deg/s' % (avgNeg_angularVelocity/negAngleCount)
+#print 'Pos Avg Angular Velocity = %f deg/s' % (avgPos_angularVelocity/posAngleCount)
 
-
-
+#print csv format
+print '%d, %f, %f, %.3f, %d, %f, %f, %f, %f, %f, %f, %f, %f' % (totalStops, (totalStopDecelerations/totalStops), (totalStopAccelerations/totalStops),dist, len(filePoints), (dist/len(filePoints)), max_velocity, max_acceleration, max_deceleration, max_angularVelocity, min_angularVelocity, (avgNeg_angularVelocity/negAngleCount),(avgPos_angularVelocity/posAngleCount))
 
 
