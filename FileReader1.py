@@ -2,6 +2,7 @@ import os, csv
 import glob
 import math
 import sys
+import re
 
 #process the csv file with x and y coordinates
 def filereader(file):
@@ -181,6 +182,10 @@ if len(sys.argv) < 1:
     print('Usage: {0} driver file directory'.format(sys.argv[0]))
     raise SystemExit
 dir_path = sys.argv[1]
+regex = re.compile(r'drivers\d+')
+regex2 = re.compile(r'\d+')
+outnum = regex2.search(dir_path).group(0)
+#print 'number in file: %s' %outnum
 
 #Brandon Working Directory
 #dir_path = r'C:/Users/Brandon/Downloads/drivers/drivers/1/5.csv'
@@ -234,6 +239,6 @@ dist = totalDistance(filePoints)
 #print 'Pos Avg Angular Velocity = %f deg/s' % (avgPos_angularVelocity/posAngleCount)
 
 #print csv format
-print '%d, %f, %f, %.3f, %d, %f, %f, %f, %f, %f, %f, %f, %f' % (totalStops, (totalStopDecelerations/totalStops), (totalStopAccelerations/totalStops),dist, len(filePoints), (dist/len(filePoints)), max_velocity, max_acceleration, max_deceleration, max_angularVelocity, min_angularVelocity, (avgNeg_angularVelocity/negAngleCount),(avgPos_angularVelocity/posAngleCount))
+print '%s, %d, %f, %f, %.3f, %d, %f, %f, %f, %f, %f, %f, %f, %f' % (outnum, totalStops, (totalStopDecelerations/totalStops), (totalStopAccelerations/totalStops),dist, len(filePoints), (dist/len(filePoints)), max_velocity, max_acceleration, max_deceleration, max_angularVelocity, min_angularVelocity, (avgNeg_angularVelocity/negAngleCount),(avgPos_angularVelocity/posAngleCount))
 
 
