@@ -177,11 +177,15 @@ def totalDistance(listIn):
     return distance
 
 
+if len(sys.argv) < 1:
+    print('Usage: {0} driver file directory'.format(sys.argv[0]))
+    raise SystemExit
+dir_path = sys.argv[1]
 
 #Brandon Working Directory
-dir_path = r'C:/Users/Brandon/Downloads/drivers/drivers/1/5.csv'
+#dir_path = r'C:/Users/Brandon/Downloads/drivers/drivers/1/5.csv'
 #Ben Working Directory (comment out when not used!)
-dir_path = '/Users/bebyrd/Documents/gsu/drivers/1/5.csv'
+#dir_path = '/Users/bebyrd/Documents/gsu/drivers/1/5.csv'
 
         #file_dir_extension = os.path.join(dir_path, '*csv')
 
