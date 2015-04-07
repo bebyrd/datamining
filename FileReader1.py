@@ -224,19 +224,19 @@ filePoints = filereader(fileIn)
 dist = totalDistance(filePoints)
 
 #print results
-#print 'Total Stops = %d' % totalStops
-#print 'Average Stop Deceleration = %f m/s2' % (totalStopDecelerations/totalStops)
-#print 'Average Stop Acceleration = %f m/s2' % (totalStopAccelerations/totalStops)
-#print 'Total Trip Distance = %.3f meters' % dist
-#print 'Total Seconds = %d seconds' % len(filePoints)
-#print 'Average Velocity = %f m/s' % (dist/len(filePoints))
-#print 'Max Velocity = %f m/s' % max_velocity
-#print 'Max Acceleration = %f m/s2' % max_acceleration
-#print 'Max Deceleration = %f m/s2' % max_deceleration
-#print 'Max Angular Velocity = %f deg/s' % max_angularVelocity
-#print 'Min Angular Velocity = %f deg/s' % min_angularVelocity
-#print 'Neg Avg Angular Velocity = %f deg/s' % (avgNeg_angularVelocity/negAngleCount)
-#print 'Pos Avg Angular Velocity = %f deg/s' % (avgPos_angularVelocity/posAngleCount)
+print 'Total Stops = %d' % totalStops
+print 'Average Stop Deceleration = %f m/s2' % (totalStopDecelerations/totalStops)
+print 'Average Stop Acceleration = %f m/s2' % (totalStopAccelerations/totalStops)
+print 'Total Trip Distance = %.3f meters' % dist
+print 'Total Seconds = %d seconds' % len(filePoints)
+print 'Average Velocity = %f m/s' % (dist/len(filePoints))
+print 'Max Velocity = %f m/s' % max_velocity
+print 'Max Acceleration = %f m/s2' % max_acceleration
+print 'Max Deceleration = %f m/s2' % max_deceleration
+print 'Max Angular Velocity = %f deg/s' % max_angularVelocity
+print 'Min Angular Velocity = %f deg/s' % min_angularVelocity
+print 'Neg Avg Angular Velocity = %f deg/s' % (avgNeg_angularVelocity/negAngleCount)
+print 'Pos Avg Angular Velocity = %f deg/s' % (avgPos_angularVelocity/posAngleCount)
 
 #print csv format
 print '%s, %d, %f, %f, %.3f, %d, %f, %f, %f, %f, %f, %f, %f, %f' % (outnum, totalStops, (totalStopDecelerations/totalStops), (totalStopAccelerations/totalStops),dist, len(filePoints), (dist/len(filePoints)), max_velocity, max_acceleration, max_deceleration, max_angularVelocity, min_angularVelocity, (avgNeg_angularVelocity/negAngleCount),(avgPos_angularVelocity/posAngleCount))
