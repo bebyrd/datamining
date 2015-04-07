@@ -94,15 +94,16 @@ def angularVelocity(x1,y1,x2,y2):
     return bearing
 
 def totalDistance(listIn):
-    global max_velocity, max_acceleration, max_deceleration, max_angularAccel
-    global min_angularAccel,max_angularVelocity,min_angularVelocity
+    global max_velocity, max_acceleration, max_deceleration, max_angularAccel, totalDirChange, negAngleCount, posAngleCount
+    global min_angularAccel,max_angularVelocity,min_angularVelocity, avgNeg_angularVelocity, avgPos_angularVelocity
     nextDistance = -999.0
     count = 0
     distance = 0.0
     tripPoints = listIn
     currentDistance = 0.0
     isStopped = False
-    angleCount = 0
+    posAngleCount = 0
+    negAngleCount = 0
     lastHeading = 1000
     angleChange = 0
     for row in listIn:
@@ -122,13 +123,28 @@ def totalDistance(listIn):
         if x1 != x2 and y1 != y2:
             heading = angularVelocity(x1,y1,x2,y2)
             if lastHeading == 1000:
+                #ignore the first one!
                 lastHeading = heading
             else:
+                #print headings and change in headings
                 angleChange = heading - lastHeading
                 print 'last heading: %d, new heading: %d, angleChg: %d' %(lastHeading,heading,angleChange)
             print 'x1:%d y1:%d x2:%d y2:%d ' % (x1,y1,x2,y2)
-            angleCount = angleCount+1
+            if angleChange < 0:
+                negAngleCount = negAngleCount+1
+                avgNeg_angularVelocity = avgNeg_angularVelocity + angleChange
+            if angleChange > 0:
+                posAngleCount = posAngleCount+1
+                avgPos_angularVelocity = avgPos_angularVelocity + angleChange
+            totalDirChange = negAngleCount + posAngleCount
             lastHeading = heading
+            #check for max Angular Velocity
+            if max_angularVelocity < angleChange:
+                max_angularVelocity = angleChange
+            #check for min Angular Velocity
+            if min_angularVelocity > angleChange:
+                min_angularVelocity = angleChange
+            #print 'angle count: %d, avg angle change: %f '% (angleCount, (avg_angularVelocity/angleCount))
 
         #compute the change in speed from one coordinate to the next
         changeSpeed = nextDistance - currentDistance
@@ -179,6 +195,9 @@ fileIn = open(dir_path, 'r')
 totalStops = 0
 totalStopAccelerations = 0.0
 totalStopDecelerations = 0.0
+totalDirChange = 0
+negAngleCount = 0
+posAngleCount = 0
 max_velocity = 0.0
 max_acceleration = 0.0
 max_deceleration = 0.0
@@ -186,6 +205,8 @@ max_angularVelocity = 0.0
 min_angularVelocity = 0.0
 max_angularAccel = 0.0
 min_angularAccel = 0.0
+avgNeg_angularVelocity = 0.0
+avgPos_angularVelocity = 0.0
 
 filePoints = filereader(fileIn)
 dist = totalDistance(filePoints)
@@ -200,6 +221,12 @@ print 'Average Velocity = %f m/s' % (dist/len(filePoints))
 print 'Max Velocity = %f m/s' % max_velocity
 print 'Max Acceleration = %f m/s2' % max_acceleration
 print 'Max Deceleration = %f m/s2' % max_deceleration
+print 'Max Angular Velocity = %f deg/s' % max_angularVelocity
+print 'Min Angular Velocity = %f deg/s' % min_angularVelocity
+print 'Neg Avg Angular Velocity = %f deg/s' % (avgNeg_angularVelocity/negAngleCount)
+print 'Pos Avg Angular Velocity = %f deg/s' % (avgPos_angularVelocity/posAngleCount)
+
+
 
 
 
