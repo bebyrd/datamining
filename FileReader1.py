@@ -85,14 +85,24 @@ def stopAnalysis(listIn, location):
     totalStopDecelerations = totalStopDecelerations + initialSpeed
     totalStops = totalStops + 1
 
+def angularVelocity(x1,y1,x2,y2):
+    dir1 = math.atan2(x1,y1)
+    dir2 = math.atan2(x2,y2)
+    dx = x2-x1
+    dy = y2-y1
+    bearing = (180/math.pi) * math.atan2(dy, dx)
+    return bearing
+
 def totalDistance(listIn):
-    global max_velocity, max_acceleration, max_deceleration
+    global max_velocity, max_acceleration, max_deceleration, max_angularAccel
+    global min_angularAccel,max_angularVelocity,min_angularVelocity
     nextDistance = -999.0
     count = 0
     distance = 0.0
     tripPoints = listIn
     currentDistance = 0.0
     isStopped = False
+    angleCount = 0
     for row in listIn:
         #first coordinate
         x1 = float(listIn[count][0])
@@ -106,6 +116,11 @@ def totalDistance(listIn):
             nextDistance = currentDistance
         #calculate distance which is velocity in m/s
         currentDistance = distance2points(x1, y1, x2, y2)
+        #calculate current heading
+        if x1 != x2 and y1 != y2:
+            heading = angularVelocity(x1,y1,x2,y2)
+            print 'x1:%d y1:%d x2:%d y2:%d heading: %d deg' % (x1,y1,x2,y2,heading)
+            angleCount = angleCount+1
 
         #compute the change in speed from one coordinate to the next
         changeSpeed = nextDistance - currentDistance
@@ -138,6 +153,8 @@ def totalDistance(listIn):
 
 #Brandon Working Directory
 dir_path = r'C:/Users/Brandon/Downloads/drivers/drivers/1/5.csv'
+#Ben Working Directory (comment out when not used!)
+dir_path = '/Users/bebyrd/Documents/gsu/drivers/1/5.csv'
 
         #file_dir_extension = os.path.join(dir_path, '*csv')
 
@@ -157,6 +174,10 @@ totalStopDecelerations = 0.0
 max_velocity = 0.0
 max_acceleration = 0.0
 max_deceleration = 0.0
+max_angularVelocity = 0.0
+min_angularVelocity = 0.0
+max_angularAccel = 0.0
+min_angularAccel = 0.0
 
 filePoints = filereader(fileIn)
 dist = totalDistance(filePoints)
