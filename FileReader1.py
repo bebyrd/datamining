@@ -104,8 +104,8 @@ def totalDistance(listIn):
     tripPoints = listIn
     currentDistance = 0.0
     isStopped = False
-    posAngleCount = 0
-    negAngleCount = 0
+    #posAngleCount = 0
+    #negAngleCount = 0
     lastHeading = 1000
     angleChange = 0
     for row in listIn:
@@ -225,6 +225,8 @@ dist = totalDistance(filePoints)
 
 avgStopDec = (totalStopDecelerations/totalStops) if totalStops != 0 else 0
 avgStopAcc = (totalStopAccelerations/totalStops) if totalStops != 0 else 0
+avgNegAV = (avgNeg_angularVelocity/negAngleCount) if negAngleCount != 0 else 0
+avgPosAV = (avgPos_angularVelocity/posAngleCount) if posAngleCount != 0 else 0
 #print results
 #if totalStops = 0
 #print 'Total Stops = %d' % totalStops
@@ -242,6 +244,6 @@ avgStopAcc = (totalStopAccelerations/totalStops) if totalStops != 0 else 0
 #print 'Pos Avg Angular Velocity = %f deg/s' % (avgPos_angularVelocity/posAngleCount)
 
 #print csv format
-print '%s, %d, %f, %f, %.3f, %d, %f, %f, %f, %f, %f, %f, %f, %f' % (outnum, totalStops, avgStopDec, avgStopAcc,dist, len(filePoints), (dist/len(filePoints)), max_velocity, max_acceleration, max_deceleration, max_angularVelocity, min_angularVelocity, (avgNeg_angularVelocity/negAngleCount),(avgPos_angularVelocity/posAngleCount))
+print '%s, %d, %f, %f, %.3f, %d, %f, %f, %f, %f, %f, %f, %f, %f' % (outnum, totalStops, avgStopDec, avgStopAcc,dist, len(filePoints), (dist/len(filePoints)), max_velocity, max_acceleration, max_deceleration, max_angularVelocity, min_angularVelocity, avgNegAV,avgPosAV)
 
 

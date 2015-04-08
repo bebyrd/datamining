@@ -20,13 +20,13 @@ assert os.path.exists(trip_pathname)
 #trip_pathname = '/Users/bebyrd/Documents/gsu/drivers/15'
 #print trip_pathname
 
-drivers = glob.glob(trip_pathname+'/*')
+drivers = sorted(glob.glob(trip_pathname+'/*'))
 print drivers
 for driver in drivers:
     regex = re.compile(r'drivers\d+')
     regex2 = re.compile(r'\d+')
     driverNum = regex2.search(driver).group(0)
-    trips = glob.glob(driver+'/*')
+    trips = sorted(glob.glob(driver+'/*'))
     #print trips
 
 
