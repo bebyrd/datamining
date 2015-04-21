@@ -97,14 +97,16 @@ def SVMandRFtest(arrayToTest):
         SVMscoreFinal = SVMscore
         ynew = ynew2
         thisCount += 1
+    print "SVM Accuracy  ", scoreSVM
+    print "RF Accuracy  ", y_pred
 
 
-filepath = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1000.csv'
-filepath2 = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1001.csv'
-filepath3 = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1002.csv'
-filepath4 = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1003.csv'
-filepath5 = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1004.csv'
-filepathSave = r'C:/Users/Brandon Desktop/Downloads/driver_trips/Sample.csv'
+filepath = r'C:/Users/Brandon/Downloads/driver_trips/1000.csv'
+filepath2 = r'C:/Users/Brandon/Downloads/driver_trips/1001.csv'
+filepath3 = r'C:/Users/Brandon/Downloads/driver_trips/1002.csv'
+filepath4 = r'C:/Users/Brandon/Downloads/driver_trips/1003.csv'
+filepath5 = r'C:/Users/Brandon/Downloads/driver_trips/1004.csv'
+filepathSave = r'C:/Users/Brandon/Downloads/driver_trips/Sample.csv'
 
 y = []
 y2 = []
@@ -127,55 +129,7 @@ largeScaledDataSet = dataset2scale
 largeScaledDataSet = np.append(largeScaledDataSet, dataset4scale, axis=0)
 largeScaledDataSet = np.append(largeScaledDataSet, dataset5scale, axis=0)
 
-sizeArray = largeScaledDataSet.shape
-intSize = sizeArray[0]
-print intSize
-count = 1
-ynew = np.array([])
-while count <= 260:
-    if count < 201:
-        yNow = [1]
-        ynew = np.append(ynew, 1)
-    else:
-        y.append(-1)
-    count = count + 1
-count = 1
+SVMandRFtest(dataset)
 
-
-thisC = 0
-while thisC < 20:
-    thisY = np.array([])
-    thisY = np.append(thisY, ynew)
-    thisY = np.append(thisY, y)
-    ynew2 = np.array([]).astype(int)
-    SVMscore = np.array([]).astype(int)
-    for train, test in kf:
-        thisHere, thisYtest = ynew[train], ynew[test]
-        thisHere = np.append(thisHere, y)
-        data2train, data2test = dataset2scale[train], dataset2scale[test]
-        data4train, data4test = dataset4scale[train], dataset4scale[test]
-        data5train, data5test = dataset5scale[train], dataset5scale[test]
-        Xtrain, Xtest = datasetscale[train], datasetscale[test]
-        Xtrain = np.append(Xtrain, data2test, axis=0)
-        Xtrain = np.append(Xtrain, data4test, axis=0)
-        Xtrain = np.append(Xtrain, data5test, axis=0)
-        clf = RandomForestClassifier(n_estimators=20)
-        clf = clf.fit(Xtrain, thisHere)
-        y_pred = clf.predict(Xtest)
-        score = clf.predict_proba(Xtest)
-        print "Score random: ", score
-        clfSVM = SVC()
-        clfSVM.fit(Xtrain, thisHere)
-        scoreSVM = clfSVM.predict(Xtest)
-        SVMscore = np.append(SVMscore, scoreSVM)
-        SVMscore.astype(int)
-        ynew2 = np.append(ynew2, y_pred)
-        ynew2.astype(int)
-    ynew = np.array([]).astype(int)
-    SVMscoreFinal = np.array([]).astype(int)
-    SVMscoreFinal = SVMscore
-    ynew = ynew2
-    thisC += 1
-
-print "Score SVM:", SVMscoreFinal.astype(int)
-print ynew.astype(int)
+#print "Score SVM:", SVMscoreFinal.astype(int)
+#print ynew.astype(int)
