@@ -1,0 +1,181 @@
+from sklearn.cross_validation import KFold, train_test_split, cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import preprocessing
+from numpy import genfromtxt, savetxt
+import numpy as np
+from sklearn.svm import SVC
+
+#paths for directories
+driver_files_path = r'C:/Users/Brandon/Downloads/driver_trips/'
+results_files_path = r'C:/Users/Brandon/Downloads/driver_trips/results'
+
+#variables
+NumberRuns = 20
+NumberFolds = 10
+RFestimators = 100
+
+#classifiers
+RFC = RandomForestClassifier(n_estimators=RFestimators)
+SVMC = SVC()
+kf = KFold(200, n_folds=NumberFolds)
+
+#function for number of rows in numpy array
+def arrayRowSize(NParrayIn):
+    sizeArray = NParrayIn.shape
+    intSize = sizeArray[0]
+    return intSize
+
+#function to set initial y array
+def yValueSet(trainSetSize, fullArraySize):
+    yClassified = np.array([]).astype(int)
+    count = 1
+    while count <= fullArraySize:
+        if count > yClassifiedSize:
+            yClassified = np.append(yClassified, -1)
+        else:
+            yClassified = np.append(yClassified, 1)
+        count += 1
+    return yClassified
+
+#function to set values for y array
+def yValueSet(yClassified, fullArraySize):
+    yClassifiedSize = arrayRowSize(yClassified)
+    count = 1
+    while count <= fullArraySize:
+        if count > yClassifiedSize:
+            yClassified = np.append(yClassified, -1)
+        count += 1
+    yClassified = yClassified.astype(int)
+    return yClassified
+
+def compareYarrays(Yarray1, Yarray2):
+    YarrayTosend = np.array([])
+    for x in Yarray1:
+        if Yarray1[x] == Yarray2[x]:
+            YarrayTosend = np.append(YarrayTosend, x)
+        else:
+            YarrayTosend = np.append(YarrayTosend, 1)
+    return YarrayTosend
+
+def SVMandRFtest(arrayToTest):
+    thisCount = 0
+    while thisCount < NumberRuns:
+        thisY = np.array([])
+        thisY = np.append(thisY, ynew)
+        thisY = np.append(thisY, y)
+        ynew2 = np.array([]).astype(int)
+        SVMscore = np.array([]).astype(int)
+        for train, test in kf:
+            data2train, data2test = dataset2scale[train], dataset2scale[test]
+            data4train, data4test = dataset4scale[train], dataset4scale[test]
+            data5train, data5test = dataset5scale[train], dataset5scale[test]
+            Xtrain, Xtest = datasetscale[train], datasetscale[test]
+            Xtrain = np.append(Xtrain, data2test, axis=0)
+            Xtrain = np.append(Xtrain, data4test, axis=0)
+            Xtrain = np.append(Xtrain, data5test, axis=0)
+            if thisCount == 0:
+                trainArraySize = arrayRowSize(train)
+                fullArraysize = arrayRowSize(Xtrain)
+                thisY = yValueSet(trainArraySize, )
+            thisHere = ynew[train]
+            thisHere = np.append(thisHere, y)
+
+            clf = RandomForestClassifier(n_estimators=20)
+            clf = clf.fit(Xtrain, thisHere)
+            y_pred = clf.predict(Xtest)
+            score = clf.predict_proba(Xtest)
+            #print "Score random: ", score
+            clfSVM = SVC()
+            clfSVM.fit(Xtrain, thisHere)
+            scoreSVM = clfSVM.predict(Xtest)
+            SVMscore = np.append(SVMscore, scoreSVM)
+            SVMscore.astype(int)
+            ynew2 = np.append(ynew2, y_pred)
+            ynew2.astype(int)
+        ynew = np.array([]).astype(int)
+        SVMscoreFinal = np.array([]).astype(int)
+        SVMscoreFinal = SVMscore
+        ynew = ynew2
+        thisCount += 1
+
+
+filepath = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1000.csv'
+filepath2 = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1001.csv'
+filepath3 = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1002.csv'
+filepath4 = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1003.csv'
+filepath5 = r'C:/Users/Brandon Desktop/Downloads/driver_trips/1004.csv'
+filepathSave = r'C:/Users/Brandon Desktop/Downloads/driver_trips/Sample.csv'
+
+y = []
+y2 = []
+
+dataset = genfromtxt(open(filepath,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+dataset2 = genfromtxt(open(filepath2,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+dataset3 = genfromtxt(open(filepath3,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+dataset4 = genfromtxt(open(filepath4,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+dataset5 = genfromtxt(open(filepath5,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+
+datasetscale = preprocessing.scale(dataset)
+dataset2scale = preprocessing.scale(dataset2)
+dataset3scale = preprocessing.scale(dataset3)
+dataset2train, dataset2test = train_test_split(dataset2scale, test_size=0.5)
+dataset4scale = preprocessing.scale(dataset4)
+dataset5scale = preprocessing.scale(dataset5)
+
+largeScaledDataSet = dataset2scale
+#largeScaledDataSet = np.append(largeScaledDataSet, dataset2scale, axis=0)
+largeScaledDataSet = np.append(largeScaledDataSet, dataset4scale, axis=0)
+largeScaledDataSet = np.append(largeScaledDataSet, dataset5scale, axis=0)
+
+sizeArray = largeScaledDataSet.shape
+intSize = sizeArray[0]
+print intSize
+count = 1
+ynew = np.array([])
+while count <= 260:
+    if count < 201:
+        yNow = [1]
+        ynew = np.append(ynew, 1)
+    else:
+        y.append(-1)
+    count = count + 1
+count = 1
+
+
+thisC = 0
+while thisC < 20:
+    thisY = np.array([])
+    thisY = np.append(thisY, ynew)
+    thisY = np.append(thisY, y)
+    ynew2 = np.array([]).astype(int)
+    SVMscore = np.array([]).astype(int)
+    for train, test in kf:
+        thisHere, thisYtest = ynew[train], ynew[test]
+        thisHere = np.append(thisHere, y)
+        data2train, data2test = dataset2scale[train], dataset2scale[test]
+        data4train, data4test = dataset4scale[train], dataset4scale[test]
+        data5train, data5test = dataset5scale[train], dataset5scale[test]
+        Xtrain, Xtest = datasetscale[train], datasetscale[test]
+        Xtrain = np.append(Xtrain, data2test, axis=0)
+        Xtrain = np.append(Xtrain, data4test, axis=0)
+        Xtrain = np.append(Xtrain, data5test, axis=0)
+        clf = RandomForestClassifier(n_estimators=20)
+        clf = clf.fit(Xtrain, thisHere)
+        y_pred = clf.predict(Xtest)
+        score = clf.predict_proba(Xtest)
+        print "Score random: ", score
+        clfSVM = SVC()
+        clfSVM.fit(Xtrain, thisHere)
+        scoreSVM = clfSVM.predict(Xtest)
+        SVMscore = np.append(SVMscore, scoreSVM)
+        SVMscore.astype(int)
+        ynew2 = np.append(ynew2, y_pred)
+        ynew2.astype(int)
+    ynew = np.array([]).astype(int)
+    SVMscoreFinal = np.array([]).astype(int)
+    SVMscoreFinal = SVMscore
+    ynew = ynew2
+    thisC += 1
+
+print "Score SVM:", SVMscoreFinal.astype(int)
+print ynew.astype(int)
