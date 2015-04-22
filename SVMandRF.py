@@ -57,6 +57,12 @@ def compareYarrays(Yarray1, Yarray2):
             YarrayTosend = np.append(YarrayTosend, 1)
     return YarrayTosend
 
+def numpyOut(input_csv):
+    dataset = genfromtxt(open(input_csv,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+    return dataset
+
+
+
 def SVMandRFtest(arrayToTest):
     thisCount = 0
     while thisCount < NumberRuns:

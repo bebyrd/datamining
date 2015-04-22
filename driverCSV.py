@@ -15,6 +15,7 @@ fileReader1 = 'FileReader1.py'
 assert os.path.exists(fileReader1),'FileReader1.py not found'
 
 trip_pathname = sys.argv[1]
+print trip_pathname
 assert os.path.exists(trip_pathname)
 
 #trip_pathname = '/Users/bebyrd/Documents/gsu/drivers/15'
