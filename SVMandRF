@@ -3,21 +3,69 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
 from numpy import genfromtxt, savetxt
 import numpy as np
+import time
 from sklearn.svm import SVC
+import sys
+import os
+import glob
+import re
+import csv
+import random
+
+from subprocess import *
 
 #paths for directories
 driver_files_path = r'C:/Users/Brandon/Downloads/driver_trips/'
 results_files_path = r'C:/Users/Brandon/Downloads/driver_trips/results'
 
 #variables
-NumberRuns = 20
+NumberRuns = 2
 NumberFolds = 10
 RFestimators = 100
+NumberFilesToProcess = 50
+
+#array for drivers
+drivers = []
+
+#prediction accuracy arrays
+SVMaccuracyArray = []
+RFaccuracyArray = []
+RFaccuracyCombo = []
+SVMaccuracyCombo = []
+RFMultiArray = []
 
 #classifiers
 RFC = RandomForestClassifier(n_estimators=RFestimators)
 SVMC = SVC()
 kf = KFold(200, n_folds=NumberFolds)
+
+
+def randomDriver():
+    global drivers
+    return random.randint(0,len(drivers)-1)
+
+
+def randomDriverNumpy(trueDriver):
+    global drivers
+    #print "true driver: " + drivers[trueDriver]
+    fDriver = -1
+    test = True
+    while test:
+        fDriver = randomDriver()
+        #print "first random: " + drivers[fDriver]
+        if not fDriver == trueDriver:
+            test = False
+            #print drivers[fDriver]
+    dataset = genfromtxt(open(drivers[fDriver]), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+    datasetscale = preprocessing.scale(dataset)
+    return datasetscale
+
+def driverTestNumpy(driverToTest):
+    global drivers
+    dataset = genfromtxt(open(drivers[driverToTest]), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+    time.sleep(0.1)
+    datasetscale = preprocessing.scale(dataset)
+    return datasetscale
 
 #function for number of rows in numpy array
 def arrayRowSize(NParrayIn):
@@ -26,11 +74,12 @@ def arrayRowSize(NParrayIn):
     return intSize
 
 #function to set initial y array
-def yValueSet(trainSetSize, fullArraySize):
+def yValueSetInitial(trainSetSize, fullArraySize):
     yClassified = np.array([]).astype(int)
+    #yClassifiedSize = arrayRowSize(trainSetSize)
     count = 1
     while count <= fullArraySize:
-        if count > yClassifiedSize:
+        if count > trainSetSize:
             yClassified = np.append(yClassified, -1)
         else:
             yClassified = np.append(yClassified, 1)
@@ -57,79 +106,222 @@ def compareYarrays(Yarray1, Yarray2):
             YarrayTosend = np.append(YarrayTosend, 1)
     return YarrayTosend
 
-def SVMandRFtest(arrayToTest):
+def MultiRF(arrayToTest, initialDriver):
+    global RFMultiArray
+    #Random driver sets in scaled form
+
+    RFout = np.array([]).astype(int)
+    data2set = randomDriverNumpy(initialDriver)
+    data3set = randomDriverNumpy(initialDriver)
+    data4set = randomDriverNumpy(initialDriver)
+    data5set = randomDriverNumpy(initialDriver)
+    data6set = randomDriverNumpy(initialDriver)
+    data7set = randomDriverNumpy(initialDriver)
+    data8set = randomDriverNumpy(initialDriver)
+    data9set = randomDriverNumpy(initialDriver)
+    data10set = randomDriverNumpy(initialDriver)
+    for train, test in kf:
+        RFY = np.array([]).astype(int)
+        data2train, data2test = data2set[train], data2set[test]
+        data3train, data3test = data3set[train], data3set[test]
+        data4train, data4test = data4set[train], data4set[test]
+        data5train, data5test = data5set[train], data5set[test]
+        data6train, data6test = data6set[train], data6set[test]
+        data7train, data7test = data7set[train], data7set[test]
+        data8train, data8test = data8set[train], data8set[test]
+        data9train, data9test = data9set[train], data9set[test]
+        data10train, data10test = data10set[train], data10set[test]
+        Xtrain, Xtest = arrayToTest[train], arrayToTest[test]
+        TrainDataArraySize = arrayRowSize(Xtrain)
+        for X in Xtrain:
+            RFY = np.append(RFY, 1)
+        Xtrain = np.append(Xtrain, data2test, axis=0)
+        for X in data2test:
+            RFY = np.append(RFY, 2)
+        Xtrain = np.append(Xtrain, data3test, axis=0)
+        for X in data3test:
+            RFY = np.append(RFY, 3)
+        Xtrain = np.append(Xtrain, data4test, axis=0)
+        for X in data4test:
+            RFY = np.append(RFY, 4)
+        Xtrain = np.append(Xtrain, data5test, axis=0)
+        for X in data5test:
+            RFY = np.append(RFY, 5)
+        Xtrain = np.append(Xtrain, data6test, axis=0)
+        for X in data6test:
+            RFY = np.append(RFY, 6)
+        Xtrain = np.append(Xtrain, data7test, axis=0)
+        for X in data7test:
+            RFY = np.append(RFY, 7)
+        Xtrain = np.append(Xtrain, data8test, axis=0)
+        for X in data8test:
+            RFY = np.append(RFY, 8)
+        Xtrain = np.append(Xtrain, data9test, axis=0)
+        for X in data9test:
+            RFY = np.append(RFY, 9)
+        Xtrain = np.append(Xtrain, data10test, axis=0)
+        for X in data10test:
+            RFY = np.append(RFY, 10)
+        multiRFC = RFC.fit(Xtrain, RFY)
+        RF_predict = multiRFC.predict(Xtest)
+        RFout = np.append(RFout, RF_predict)
+
+    RFout.astype(int)
+    scoreRF = RFC.score(arrayToTest, RFout)
+    RFMultiArray.append(scoreRF)
+
+def SVMandRFtest(arrayToTest, initialDriver):
+    global SVMaccuracyArray, RFaccuracyArray
     thisCount = 0
     while thisCount < NumberRuns:
-        thisY = np.array([])
-        thisY = np.append(thisY, ynew)
-        thisY = np.append(thisY, y)
-        ynew2 = np.array([]).astype(int)
-        SVMscore = np.array([]).astype(int)
+        SVMY = np.array([]).astype(int)
+        RFY = np.array([]).astype(int)
+        SVMandRF_Y = np.array([]).astype(int)
+        RFcomboArray = np.array([]).astype(int)
+        SVMcomboArray = np.array([]).astype(int)
+        #Random driver sets in scaled form
+        data2set = randomDriverNumpy(initialDriver)
+        #time.sleep(0.05)
+        data3set = randomDriverNumpy(initialDriver)
+        #time.sleep(0.05)
+        data4set = randomDriverNumpy(initialDriver)
+        #time.sleep(0.05)
+        data5set = randomDriverNumpy(initialDriver)
+
         for train, test in kf:
-            data2train, data2test = dataset2scale[train], dataset2scale[test]
-            data4train, data4test = dataset4scale[train], dataset4scale[test]
-            data5train, data5test = dataset5scale[train], dataset5scale[test]
-            Xtrain, Xtest = datasetscale[train], datasetscale[test]
+            #training and test sets for random drivers
+            data2train, data2test = data2set[train], data2set[test]
+            data3train, data3test = data3set[train], data3set[test]
+            data4train, data4test = data4set[train], data4set[test]
+            data5train, data5test = data5set[train], data5set[test]
+
+            #Our test driver set
+            Xtrain, Xtest = arrayToTest[train], arrayToTest[test]
+
+            #append the random driver sets to our driver
             Xtrain = np.append(Xtrain, data2test, axis=0)
+            Xtrain = np.append(Xtrain, data3test, axis=0)
             Xtrain = np.append(Xtrain, data4test, axis=0)
             Xtrain = np.append(Xtrain, data5test, axis=0)
             if thisCount == 0:
-                trainArraySize = arrayRowSize(train)
+                trainArraySize = arrayRowSize(arrayToTest[train])
                 fullArraysize = arrayRowSize(Xtrain)
-                thisY = yValueSet(trainArraySize, )
-            thisHere = ynew[train]
-            thisHere = np.append(thisHere, y)
+                thisSVMandRF_Y = yValueSetInitial(trainArraySize, fullArraysize)
+                thisSVMY = yValueSetInitial(trainArraySize, fullArraysize)
+                thisRFY = yValueSetInitial(trainArraySize, fullArraysize)
+            else:
+                thisSVMY = currentSVMY[train]
+                thisRFY = currentRFY[train]
+                thisSVMandRF_Y = currentSVMandRF_Y[train]
+                fullArraysize = arrayRowSize(Xtrain)
+                thisSVMY = yValueSet(thisSVMY, fullArraysize)
+                thisRFY = yValueSet(thisRFY, fullArraysize)
+                thisSVMandRF_Y = yValueSet(thisSVMandRF_Y, fullArraysize)
 
-            clf = RandomForestClassifier(n_estimators=20)
-            clf = clf.fit(Xtrain, thisHere)
-            y_pred = clf.predict(Xtest)
-            score = clf.predict_proba(Xtest)
-            #print "Score random: ", score
-            clfSVM = SVC()
-            clfSVM.fit(Xtrain, thisHere)
-            scoreSVM = clfSVM.predict(Xtest)
-            SVMscore = np.append(SVMscore, scoreSVM)
-            SVMscore.astype(int)
-            ynew2 = np.append(ynew2, y_pred)
-            ynew2.astype(int)
-        ynew = np.array([]).astype(int)
-        SVMscoreFinal = np.array([]).astype(int)
-        SVMscoreFinal = SVMscore
-        ynew = ynew2
+            #Regular RF classification of the test set of the fold
+            currentRFC = RFC.fit(Xtrain, thisRFY)
+            RF_predict = currentRFC.predict(Xtest)
+            #Regular SVM classification of the test set of the fold
+            currentSVMC = SVMC.fit(Xtrain, thisSVMY)
+            SVM_predict = currentSVMC.predict(Xtest)
+
+            #Combo RF and SVM classification set tests
+            currentRFofCombo = RFC.fit(Xtrain, thisSVMandRF_Y)
+            currentSVMofCombo = SVMC.fit(Xtrain, thisSVMandRF_Y)
+            RF_Combo_Predict = currentRFofCombo.predict(Xtest)
+            SVM_Combo_Predict = currentSVMofCombo.predict(Xtest)
+
+            #Store the results in the data sets
+            SVMY = np.append(SVMY, SVM_predict)
+            RFY = np.append(RFY, RF_predict)
+            RFcomboArray = np.append(RFcomboArray, RF_Combo_Predict)
+            SVMcomboArray = np.append(SVMcomboArray, SVM_Combo_Predict)
+
+        #reclassify as int from float
+        SVMY.astype(int)
+        #store the current SVM prediction as the new SVM prediction
+        currentSVMY = SVMY
+        #reclassify as int from float
+        RFY.astype(int)
+        #store the current SVM prediction as the new SVM prediction
+        currentRFY = RFY
+
+        ###### Combination of SVM and RF ##########
+        #reclassify as int from float
+        SVMandRF_Y.astype(int)
+        currentSVMandRF_Y = compareYarrays(RFcomboArray, SVMcomboArray)  #test the arrays against each other
+        #### increase the count ########
         thisCount += 1
-    print "SVM Accuracy  ", scoreSVM
-    print "RF Accuracy  ", y_pred
+    scoreRF = RFC.score(arrayToTest, RFY)
+    scoreSVM = SVMC.score(arrayToTest, SVMY)
+    SVMaccuracyArray.append(scoreSVM)
+    RFaccuracyArray.append(scoreRF)
 
 
-filepath = r'C:/Users/Brandon/Downloads/driver_trips/1000.csv'
-filepath2 = r'C:/Users/Brandon/Downloads/driver_trips/1001.csv'
-filepath3 = r'C:/Users/Brandon/Downloads/driver_trips/1002.csv'
-filepath4 = r'C:/Users/Brandon/Downloads/driver_trips/1003.csv'
-filepath5 = r'C:/Users/Brandon/Downloads/driver_trips/1004.csv'
-filepathSave = r'C:/Users/Brandon/Downloads/driver_trips/Sample.csv'
+    ####COMBO SCORES######
+    scoreRFcombo = RFC.score(arrayToTest, currentSVMandRF_Y)
+    scoreSVMcombo = SVMC.score(arrayToTest, currentSVMandRF_Y)
+    RFaccuracyCombo.append(scoreRFcombo)
+    SVMaccuracyCombo.append(scoreSVMcombo)
+    #print "SVM Accuracy for ", initialDriver, " is: ", scoreSVC
+    #print "RF Accuracy for ", initialDriver, " is: ", score2
 
-y = []
-y2 = []
 
-dataset = genfromtxt(open(filepath,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
-dataset2 = genfromtxt(open(filepath2,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
-dataset3 = genfromtxt(open(filepath3,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
-dataset4 = genfromtxt(open(filepath4,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
-dataset5 = genfromtxt(open(filepath5,'r'), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
 
-datasetscale = preprocessing.scale(dataset)
-dataset2scale = preprocessing.scale(dataset2)
-dataset3scale = preprocessing.scale(dataset3)
-dataset2train, dataset2test = train_test_split(dataset2scale, test_size=0.5)
-dataset4scale = preprocessing.scale(dataset4)
-dataset5scale = preprocessing.scale(dataset5)
 
-largeScaledDataSet = dataset2scale
-#largeScaledDataSet = np.append(largeScaledDataSet, dataset2scale, axis=0)
-largeScaledDataSet = np.append(largeScaledDataSet, dataset4scale, axis=0)
-largeScaledDataSet = np.append(largeScaledDataSet, dataset5scale, axis=0)
 
-SVMandRFtest(dataset)
+#
+def fileRead(driver_pathname):
 
-#print "Score SVM:", SVMscoreFinal.astype(int)
-#print ynew.astype(int)
+    count = 0
+    print driver_pathname
+    drivers = sorted(glob.glob(driver_pathname+'/*'))
+    return drivers
+
+
+
+def main(argv=None):
+    global drivers
+    fDriver = -1
+    #main code; ran if opened by itself
+    if argv is None:
+        argv = sys.argv
+    driver_pathname = argv[1] #folder containing all the driver csv files
+    assert os.path.exists(driver_pathname)
+
+    #call fileRead
+    drivers = fileRead(driver_pathname)
+
+    #print "true driver: " + drivers[trueDriver]
+    test = True
+
+    for idx, driver in enumerate(drivers):
+        dataset = genfromtxt(open(driver), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+        datasetscale = preprocessing.scale(dataset)
+        SVMandRFtest(datasetscale, idx)
+        print "RF score for driver ", idx, " = ", RFaccuracyArray[idx]
+        print "SVM score for driver ", idx, " = ", SVMaccuracyArray[idx]
+        print "RF score (combo with SVM) for driver ", idx, " = ", RFaccuracyCombo[idx]
+        print "SVM score (combo with RF) for driver ", idx, " = ", SVMaccuracyCombo[idx]
+        if idx > NumberFilesToProcess:
+            break
+    print "Average RF score for all drivers with ", NumberRuns, " # of runs and ", NumberFolds, " folds = ", (sum(RFaccuracyArray)/len(RFaccuracyArray))
+    print "Average SVM score for all drivers with ", NumberRuns, " # of runs and ", NumberFolds, " folds = ", (sum(SVMaccuracyArray)/len(SVMaccuracyArray))
+    print "Average RF(combo) score for all drivers with ", NumberRuns, " # of runs and ", NumberFolds, " folds = ", (sum(RFaccuracyCombo)/len(RFaccuracyCombo))
+    print "Average SVM(combo) score for all drivers with ", NumberRuns, " # of runs and ", NumberFolds, " folds = ", (sum(SVMaccuracyCombo)/len(SVMaccuracyCombo))
+    COMBOscore = (sum(RFaccuracyCombo)+sum(SVMaccuracyCombo))/(len(SVMaccuracyCombo)+len(RFaccuracyCombo))
+    #for driver in drivers:
+    print "Average COMBO for all drivers with ", NumberRuns, " # of runs and ", NumberFolds, " folds = ", COMBOscore
+    #for driver in drivers:
+        #dataset
+
+    for idx, driver in enumerate(drivers):
+        dataset = genfromtxt(open(driver), delimiter=',', usecols=(2, 3, 6, 7, 8, 9, 10, 11, 12, 13))
+        datasetscale = preprocessing.scale(dataset)
+        MultiRF(datasetscale, idx)
+        print "RF Multiclass score for driver ", idx, " = ", RFMultiArray[idx]
+        if idx > NumberFilesToProcess:
+            break
+    print "Average Multiclass RF score for all drivers with ", NumberFolds, " folds = ", (sum(RFMultiArray)/len(RFMultiArray))
+
+if __name__ == "__main__": sys.exit(main())
